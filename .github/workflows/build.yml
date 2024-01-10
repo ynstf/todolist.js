@@ -1,4 +1,10 @@
-on: push
+name: TODO CI
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+
 jobs:
   build-node:
     runs-on: ubuntu-latest
