@@ -294,9 +294,16 @@ app.get('/users', (req, res) => {
 });
 
 
+/*app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});*/
 
-module.exports = app; // Export the 'app' instance
-
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+const closeServer = () => {
+server.close();
+};
+
+module.exports = { app, closeServer };
