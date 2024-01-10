@@ -1,0 +1,6 @@
+npm install bcrypt
+npm install sqlite3
+npm install express
+npm install cors
+npm install express-session
+npm install ejs

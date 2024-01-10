@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#062e3f">
+    <meta name="Description" content="A dynamic and aesthetic To-Do List WebApp.">
+
+    <!-- Google Font: Quick Sand -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300&display=swap" rel="stylesheet">
+
+    <!-- font awesome (https://fontawesome.com) for basic icons; source: https://cdnjs.com/libraries/font-awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha384-5q8FfXq6a7F1yo4fGwB+8Aq8PLMIqIzV84YWS/8H/oH/lh6IsopQb/SFIIJdA2Mn2" crossorigin="anonymous">
+
+    <link rel="shortcut icon" type="image/png" href="assets/favicon.png"/>
+    <link rel="stylesheet" href="CSS/main.css">
+    <title>TUN SIE ES EINFACH</title>
+
+    <style>
+
+
+
+        #user-welcome {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            top: 20px;
+            left: 20px; /* Adjust left position as needed */
+            font-size: 18px; /* Adjust font size of the welcome message */
+        }
+
+        #user-welcome i {
+            margin-right: 8px; /* Adjust margin as needed */
+        }
+
+        /* Add this style for the logout button */
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px; /* Adjust font size as needed */
+            margin: 0; /* Remove default margin */
+            padding: 10px 15px; /* Adjust padding as needed */
+        }
+
+        /* Add this style to align the logout button with other buttons */
+        .standard-button,
+        .logout-button {
+            margin-right: 10px; /* Adjust margin as needed */
+        }
+
+        /* Add this style for the welcome link */
+        .welcome-link {
+            text-decoration: none; /* Remove underline from the link */
+            color: #007BFF; /* Set link color */
+            transition: color 0.3s ease; /* Add smooth color transition on hover */
+
+            /* Optional: Add additional styling */
+            font-weight: bold;
+        }
+
+        .welcome-link:hover {
+            color: #0056b3; /* Change color on hover */
+        }
+
+
+
+    </style>
+
+    
+</head>
+
+<body>
+
+    <div id="header">
+        <% if (username) { %>
+            <div id="user-welcome">
+                <i class="fas fa-user"></i>
+                Welcome <p>&nbsp;</p> <p class="welcome-link"> <%= username %></p>
+            </div>
+            <button id="logout-btn" class="standard-button logout-button">Logout</button>        
+            <% } %>
+        <div class="flexrow-container">
+            <div class="standard-theme theme-selector"></div>
+            <div class="light-theme theme-selector"></div>
+            <div class="darker-theme theme-selector"></div>
+        </div>
+        <h1 id="title">  Tu es. <div id="border"></div></h1>
+        
+    </div>
+
+    <div id="form">
+        <form>
+            <input class="todo-input" type="text" placeholder="eine Aufgabe hinzufügen.">
+            <button class="todo-btn" type="submit">Ich schaff das!</button>
+        </form>
+    </div>
+
+    <!-- div for top left corner -->
+
+        <p><span id="datetime"></span></p>
+        <script src="JS/time.js"></script>
+    </div>
+
+    <div id="myUnOrdList">
+        <ul class="todo-list">
+            <% tasks.forEach(task => { %>
+                <div class="todo <%= task.taskState ? 'completed-task' : 'standard-todo' %>">
+                    <!-- Display task information -->
+                    <li class="todo-item"><%= task.taskText %></li>
+                    <button class="check-btn standard-button" data-task-id="<%= task.id %>"><i class="fas fa-check"></i></button>
+                    <button class="delete-btn standard-button" data-task-id="<%= task.id %>"><i class="fas fa-trash"></i></button>
+                    <!-- Add other task-related content here -->
+                </div>
+            <% }); %>
+        </ul>
+    </div>
+    
+    
+
+    <script src="JS/main.js" type="text/javascript"> </script>
+    <script>
+        // Add this script to handle the logout button click event
+        const logoutButton = document.getElementById('logout-btn');
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function() {
+                // Perform logout logic here, for example, redirect to a logout route
+                window.location.href = '/logout'; // Change '/logout' to your actual logout route
+            });
+        }
+    </script>
+</body>
+</html>
