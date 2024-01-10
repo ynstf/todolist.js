@@ -56,6 +56,10 @@ db.run(`
 });
 
 
+app.get('/test', (req, res) => {
+    res.status(200).json({ message: 'Hello, World!' });
+});
+
 // Logout route
 app.get('/logout', (req, res) => {
     // Destroy the session
@@ -277,6 +281,7 @@ app.get('/tasks/:username', (req, res) => {
     });
 });
 
+
 app.get('/users', (req, res) => {
     // Retrieve all users
     db.all('SELECT * FROM users', (err, users) => {
@@ -289,6 +294,8 @@ app.get('/users', (req, res) => {
 });
 
 
+
+module.exports = app; // Export the 'app' instance
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
