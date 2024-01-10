@@ -2,16 +2,18 @@ name: Build and Push Docker image to Docker Hub
 
 on:
   workflow_call:
+    workflows: ["Build and Push Docker image to Docker Hub"]
+    types:
+      - completed
   workflow_dispatch:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
-
 jobs:
   build-node:
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/build.yaml
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
