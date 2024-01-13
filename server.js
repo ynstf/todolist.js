@@ -6,10 +6,12 @@ const path = require('path');
 const cors = require('cors'); 
 const session = require('express-session');
 const ejs = require('ejs');
-
 const app = express();
+
+// expose on port 5000
 const port = 5000;
 
+// create metrics to monitoring
 const client = require('prom-client');
 const { register } = require('prom-client'); // Import the register from 'prom-client'
 const headerCounter = new client.Counter({
@@ -27,31 +29,26 @@ register.setDefaultLabels({
 });
 client.collectDefaultMetrics({ register });
 
-
+// create session
 app.use(session({
     secret: 'hjfdpuydpyufutdotudou',
     resave: true,
     saveUninitialized: true,
     cookie: { sameSite: 'None' }
 }));
+
+// enable cros
 app.use(cors({ credentials: true }));
-//app.use(cors()); 
 app.use(bodyParser.urlencoded({ extended: true }));
+
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
-//app.use(session({ secret: 'azertyytreza', resave: true, saveUninitialized: true, cookie: { sameSite: 'None' } }));
 
-
-
-
+// define ejs as engine views
 app.set('view engine', 'ejs');
-// Define your API routes and logic here
-// For simplicity, let's create a simple endpoint to get tasks
 app.use(bodyParser.json());
-app.set('view engine', 'ejs');
 
 //database
-
 const db = new sqlite3.Database('./database.db');
 db.serialize(() => {
 db.run(`
@@ -74,7 +71,9 @@ db.run(`
 `);
 });
 
+/// Define API routes and logic 
 
+// test the API
 app.get('/test', (req, res) => {
     res.status(200).json({ message: 'Hello, World!' });
 });
@@ -105,94 +104,19 @@ app.get('/getUsername', (req, res) => {
     res.status(200).json({ username });
 });
 
+// index page
 app.get('/', isAuthenticated, (req, res) => {
     // Render the 'index' template
     res.render('index');
 });
 
+// registration page
 app.get('/registeration', isAuthenticated, (req, res) => {
     // Render the 'register' template
     res.render('register');
 });
 
-// Middleware to check if the user is authenticated
-function isAuthenticated(req, res, next) {
-    // Allow access to '/' and '/registeration' for both authenticated and unauthenticated users
-    if (req.path === '/' || req.path === '/registeration') {
-        return next();
-    }
-
-    if (!req.session || !req.session.username) {
-        return res.redirect('/'); // Redirect to login page if not logged in
-    }
-
-    // User is authenticated, continue to the next middleware or route handler
-    next();
-}
-
-app.get('/todolist', (req, res) => {
-    console.log('Reached /todolist route');
-    // Fetch tasks from the database
-    db.all('SELECT * FROM tasks', (err, tasks) => {
-        if (err) {
-            console.error('Error fetching tasks:', err);
-            return res.status(500).json({ error: 'Error fetching tasks' });
-        }
-
-        // Render the 'todolist' template with the retrieved tasks
-        console.log('Rendering todolist template');
-        res.render('todolist', { username: req.session.username, tasks });
-    });
-});
-
-
-app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], (err) => {
-        if (err) {
-        return res.status(500).json({ error: 'Error creating user' });
-        }
-
-        res.status(200).json({ message: 'User created successfully' });
-    });
-});
-
-app.post('/createTask', (req, res) => {
-    const { username, taskText, date, taskState } = req.body;
-
-    // Retrieve the userId based on the provided username
-    db.get('SELECT id FROM users WHERE username = ?', [username], (err, user) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error finding user' });
-        }
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        const userId = user.id;
-
-        // Insert the task into the tasks table
-        db.run(
-            'INSERT INTO tasks (userId, username, taskText, date, taskState) VALUES (?, ?, ?, ?, ?)',
-            [userId, username, taskText, date, taskState],
-            function (err) {
-                if (err) {
-                    console.error('Error creating task:', err);
-                    return res.status(500).json({ error: 'Error creating task' });
-                }
-        
-                // Get the last inserted ID
-                const taskId = this.lastID;
-        
-                res.status(200).json({ message: 'Task created successfully', taskId: taskId });
-            }
-        );
-    });
-});
-
+// login logic
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -230,7 +154,87 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Middleware to check if the user is authenticated
+function isAuthenticated(req, res, next) {
+    // Allow access to '/' and '/registeration' for both authenticated and unauthenticated users
+    if (req.path === '/' || req.path === '/registeration') {
+        return next();
+    }
 
+    if (!req.session || !req.session.username) {
+        return res.redirect('/'); // Redirect to login page if not logged in
+    }
+
+    // User is authenticated, continue to the next middleware or route handler
+    next();
+}
+
+// home page of todolist user
+app.get('/todolist', (req, res) => {
+    console.log('Reached /todolist route');
+    // Fetch tasks from the database
+    db.all('SELECT * FROM tasks', (err, tasks) => {
+        if (err) {
+            console.error('Error fetching tasks:', err);
+            return res.status(500).json({ error: 'Error fetching tasks' });
+        }
+
+        // Render the 'todolist' template with the retrieved tasks
+        console.log('Rendering todolist template');
+        res.render('todolist', { username: req.session.username, tasks });
+    });
+});
+
+// registration logic
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], (err) => {
+        if (err) {
+        return res.status(500).json({ error: 'Error creating user' });
+        }
+
+        res.status(200).json({ message: 'User created successfully' });
+    });
+});
+
+// create new task
+app.post('/createTask', (req, res) => {
+    const { username, taskText, date, taskState } = req.body;
+
+    // Retrieve the userId based on the provided username
+    db.get('SELECT id FROM users WHERE username = ?', [username], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error finding user' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const userId = user.id;
+
+        // Insert the task into the tasks table
+        db.run(
+            'INSERT INTO tasks (userId, username, taskText, date, taskState) VALUES (?, ?, ?, ?, ?)',
+            [userId, username, taskText, date, taskState],
+            function (err) {
+                if (err) {
+                    console.error('Error creating task:', err);
+                    return res.status(500).json({ error: 'Error creating task' });
+                }
+        
+                // Get the last inserted ID
+                const taskId = this.lastID;
+        
+                res.status(200).json({ message: 'Task created successfully', taskId: taskId });
+            }
+        );
+    });
+});
+
+// montion task as completed
 app.patch('/completeTask/:taskId', (req, res) => {
     const { taskId } = req.params;
 
@@ -260,7 +264,7 @@ app.patch('/completeTask/:taskId', (req, res) => {
     });
 });
 
-
+// delete tasks based on the taskId
 app.delete('/deleteTask/:taskId', (req, res) => {
     const { taskId } = req.params;
 
@@ -274,6 +278,7 @@ app.delete('/deleteTask/:taskId', (req, res) => {
     });
 });
 
+// get tasks based on the username
 app.get('/tasks/:username', (req, res) => {
     const { username } = req.params;
 
@@ -300,9 +305,8 @@ app.get('/tasks/:username', (req, res) => {
     });
 });
 
-
+// Retrieve all users
 app.get('/users', (req, res) => {
-    // Retrieve all users
     db.all('SELECT * FROM users', (err, users) => {
     if (err) {
         return res.status(500).json({ error: 'Error fetching users' });
@@ -312,12 +316,13 @@ app.get('/users', (req, res) => {
     });
 });
 
-
+// define metrics route
 app.get('/metrics', async (req, res) => {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
 });
 
+// run the server on my port
 const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
@@ -325,5 +330,5 @@ const server = app.listen(port, () => {
 const closeServer = () => {
 server.close();
 };
-
+// eport app to test unite
 module.exports = { app, closeServer };
