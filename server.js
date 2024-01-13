@@ -7,9 +7,27 @@ const cors = require('cors');
 const session = require('express-session');
 const ejs = require('ejs');
 
-
 const app = express();
-const port = 3000;
+const port = 5000;
+
+const client = require('prom-client');
+const { register } = require('prom-client'); // Import the register from 'prom-client'
+const headerCounter = new client.Counter({
+    name : "heads_count",
+    help : 'Number of heads'
+});
+const tailCounter = new client.Counter({
+    name : "tails_count", // Unique name
+    help : 'Number of tails'
+});
+register.registerMetric(headerCounter);
+register.registerMetric(tailCounter);
+register.setDefaultLabels({
+    app: 'todolist'
+});
+client.collectDefaultMetrics({ register });
+
+
 app.use(session({
     secret: 'hjfdpuydpyufutdotudou',
     resave: true,
@@ -294,9 +312,10 @@ app.get('/users', (req, res) => {
 });
 
 
-/*app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});*/
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+});
 
 const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
