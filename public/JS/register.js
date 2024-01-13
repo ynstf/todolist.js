@@ -8,7 +8,7 @@ function register() {
     const password = document.getElementById('password').value;
 
     // Make a request to your backend for registration
-    fetch('http://localhost:3000/register', {
+    fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

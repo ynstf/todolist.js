@@ -31,7 +31,7 @@ function addToDo(event) {
     event.preventDefault();
 
     // Fetch the username from the backend
-    fetch('http://localhost:3000/getUsername', {
+    fetch('http://localhost:5000/getUsername', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ function addToDo(event) {
             };
 
             // Make a request to your backend to create a new task
-            fetch('http://localhost:3000/createTask', {
+            fetch('http://localhost:5000/createTask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ function addToDo(event) {
 // Function to complete a task
 function completeTask(taskId) {
     // Make a request to mark the task as completed
-    fetch(`http://localhost:3000/completeTask/${taskId}`, {
+    fetch(`http://localhost:5000/completeTask/${taskId}`, {
         method: 'PATCH',
     })
     .then(response => {
@@ -161,7 +161,7 @@ function deletecheck(event) {
         const taskId = item.parentElement.dataset.taskId;
 
         // Make a request to delete the task
-        fetch(`http://localhost:3000/deleteTask/${taskId}`, {
+        fetch(`http://localhost:5000/deleteTask/${taskId}`, {
             method: 'DELETE',
         })
         .then(response => {
@@ -204,7 +204,7 @@ function getTodos(event) {
     event.preventDefault();
 
     // Fetch the username from the backend
-    fetch('http://localhost:3000/getUsername', {
+    fetch('http://localhost:5000/getUsername', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ function getTodos(event) {
         toDoList.innerHTML = '';
 
         // Fetch tasks from the server
-        fetch(`http://localhost:3000/tasks/${username}`, {
+        fetch(`http://localhost:5000/tasks/${username}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

@@ -51,6 +51,7 @@ app.use(bodyParser.json());
 app.set('view engine', 'ejs');
 
 //database
+
 const db = new sqlite3.Database('./database.db');
 db.serialize(() => {
 db.run(`
